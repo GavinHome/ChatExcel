@@ -24,7 +24,7 @@ namespace ChatExcel
         /// <summary>
         /// 名称
         /// </summary>
-        public static string AppName { get; internal set; } = "ChatExcel";
+        public static string AppName { get; internal set; } = "智算大师";
 
         /// <summary>
         /// WebView缓存目录

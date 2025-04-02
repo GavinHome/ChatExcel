@@ -45,10 +45,10 @@ namespace ChatExcel
             webView.Dock = System.Windows.Forms.DockStyle.Fill;
 
             // 指定自定义缓存路径（例如用户 AppData 文件夹）
-            string userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ChatExcel");
+            string userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), SystemConfig.WebViewApp);
             var env = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
             await webView.EnsureCoreWebView2Async(env);
-            webView.Source = new Uri("https://udify.app/chatbot/AVX31tbxs79E7br4");
+            webView.Source = new Uri(SystemConfig.WebSiteUrl);
             webViewPanel.Controls.Add(webView);
         }
 
@@ -66,9 +66,9 @@ namespace ChatExcel
                 Height = 30,
                 Text = "调试区域",
                 TextAlign = ContentAlignment.MiddleLeft,
-                Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold),
+                //Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold),
+                Font = SystemConfig.SystemFont,
                 BackColor = System.Drawing.Color.FromArgb(245, 245, 245),
-                //Padding = new Padding(10, 10, 10, 10),
                 Margin = new Padding(10, 10, 10, 10)
             };
             

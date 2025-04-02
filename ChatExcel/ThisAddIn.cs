@@ -16,7 +16,7 @@ namespace ChatExcel
 {
     public partial class ThisAddIn
     {
-        private static WebSocketClient _webSocketClient = new WebSocketClient("wss://ws-server.gavinhome.partykit.dev/party/chat-excel");
+        private static WebSocketClient _webSocketClient = new WebSocketClient(SystemConfig.WebSocketUrl);
 
         private Microsoft.Office.Tools.CustomTaskPane customTaskPane;
 
@@ -114,7 +114,7 @@ namespace ChatExcel
         private void CreateCustomTaskPane()
         {
             var webViewPanel = new WebViewsPanel();
-            customTaskPane = this.CustomTaskPanes.Add(webViewPanel, "ChatExcel");
+            customTaskPane = this.CustomTaskPanes.Add(webViewPanel, SystemConfig.AppName);
             customTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionRight;
 
             // 设置初始宽度为Excel窗口宽度的40%
