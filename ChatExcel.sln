@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35913.81 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatExcel", "ChatExcel\ChatExcel.csproj", "{B5DD32D5-F94F-41C6-B1F8-23D1A10BE8D8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B5DD32D5-F94F-41C6-B1F8-23D1A10BE8D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5DD32D5-F94F-41C6-B1F8-23D1A10BE8D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5DD32D5-F94F-41C6-B1F8-23D1A10BE8D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5DD32D5-F94F-41C6-B1F8-23D1A10BE8D8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CC6E0A35-EE9A-4558-8C1E-081134A98BDE}
+	EndGlobalSection
+EndGlobal

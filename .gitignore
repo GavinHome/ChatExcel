@@ -1,0 +1,8 @@
+﻿################################################################################
+# 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
+################################################################################
+
+/.vs/ChatExcel
+/ChatExcel/bin/Debug
+/ChatExcel/obj/Debug
+/packages/Microsoft.Web.WebView2.1.0.3124.44
