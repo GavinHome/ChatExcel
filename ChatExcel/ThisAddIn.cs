@@ -88,6 +88,26 @@ namespace ChatExcel
 
         #region VBA
 
+        /// <summary>
+        /// 格式化VBA代码，判断是否需要添加Sub和End Sub
+        /// </summary>
+        /// <param name="vbaCode">原始VBA代码</param>
+        /// <returns>格式化后的VBA代码</returns>
+        private string FormatVbaCode(string vbaCode)
+        {
+            // 检查代码是否已经包含了Public Sub GeneratedMacro()和End Sub
+            if (vbaCode.Contains("Public Sub GeneratedMacro()") && vbaCode.Contains("End Sub"))
+            {
+                // 如果已经包含了完整的结构，直接返回
+                return vbaCode;
+            }
+            else
+            {
+                // 否则，添加必要的结构
+                return $"Public Sub GeneratedMacro()\n{vbaCode}\nEnd Sub";
+            }
+        }
+
         public void RunVba(string vbaCode)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
@@ -154,8 +174,8 @@ namespace ChatExcel
                 try
                 {
                     var vbaModule = wb.VBProject.VBComponents.Add(vbext_ComponentType.vbext_ct_StdModule);
-                    // 添加正确的VBA宏声明格式，确保代码格式正确
-                    string formattedVbaCode = $"Public Sub GeneratedMacro()\n{vbaCode}\nEnd Sub";
+                    // 使用FormatVbaCode方法格式化VBA代码
+                    string formattedVbaCode = FormatVbaCode(vbaCode);
 
                     // 先尝试删除可能存在的同名模块
                     try
