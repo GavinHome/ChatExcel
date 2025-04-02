@@ -19,6 +19,14 @@ namespace ChatExcel
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             // 自动打开工作簿
+            CreateAndOpenFile();
+            
+            // 加载面板
+            CreateCustomTaskPane();
+        }
+
+        private void CreateAndOpenFile()
+        {
             try
             {
                 string workbookPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "工作簿1.xlsm");
@@ -37,14 +45,18 @@ namespace ChatExcel
             {
                 MessageBox.Show("打开工作簿时出错: " + ex.Message);
             }
+        }
 
+        #region CustomTaskPane 
 
+        private void CreateCustomTaskPane()
+        {
             var webViewPanel = new WebViewsPanel();
             customTaskPane = this.CustomTaskPanes.Add(webViewPanel, "ChatExcel");
             customTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionRight;
 
             // 设置初始宽度为Excel窗口宽度的40%
-            UpdateTaskPaneWidth();
+            SetTaskPaneWidth();
 
             // 监听Excel窗口大小变化
             Application.WindowResize += Application_WindowResize;
@@ -54,18 +66,27 @@ namespace ChatExcel
 
         private void Application_WindowResize(Excel.Workbook Wb, Excel.Window Wn)
         {
-            UpdateTaskPaneWidth();
+            SetTaskPaneWidth();
         }
 
-        private void UpdateTaskPaneWidth()
+        private void SetTaskPaneWidth()
         {
             if (Application.ActiveWindow != null)
             {
                 // 获取Excel窗口宽度并计算40%的宽度
                 double windowWidth = Application.ActiveWindow.Width;
-                customTaskPane.Width = (int)(windowWidth * 0.4);
+                int calculatedWidth = (int)(windowWidth * 0.4);
+                customTaskPane.Width = Math.Max(calculatedWidth, 400);
+            }
+            else
+            {
+                customTaskPane.Width = 400;
             }
         }
+
+        #endregion
+
+        #region VBA
 
         public void RunVba(string vbaCode)
         {
@@ -78,7 +99,7 @@ namespace ChatExcel
                 return;
             }
 
-            try 
+            try
             {
                 // 检查文件格式
                 string fileExtension = System.IO.Path.GetExtension(wb.FullName).ToLower();
@@ -129,30 +150,13 @@ namespace ChatExcel
                     return;
                 }
 
-                // 如果工作簿没有VBA项目，创建一个新的
-                //VBComponent vbaModule;
-                //if (!wb.HasVBProject)
-                //{
-                //    try
-                //    {
-                //        // 尝试创建新的VBA项目
-                //        vbaModule = wb.VBProject.VBComponents.Add(vbext_ComponentType.vbext_ct_StdModule);
-                //        MessageBox.Show("已成功创建VBA项目，请继续操作。");
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        MessageBox.Show("创建VBA项目失败: " + ex.Message);
-                //        return;
-                //    }
-                //}
-
                 // 插入并运行VBA代码
                 try
                 {
                     var vbaModule = wb.VBProject.VBComponents.Add(vbext_ComponentType.vbext_ct_StdModule);
                     // 添加正确的VBA宏声明格式，确保代码格式正确
                     string formattedVbaCode = $"Public Sub GeneratedMacro()\n{vbaCode}\nEnd Sub";
-                    
+
                     // 先尝试删除可能存在的同名模块
                     try
                     {
@@ -169,10 +173,10 @@ namespace ChatExcel
 
                     // 添加代码到模块
                     vbaModule.CodeModule.AddFromString(formattedVbaCode);
-                    
+
                     // 保存工作簿以确保VBA代码被保存
                     wb.Save();
-                    
+
                     // 运行宏
                     try
                     {
@@ -183,7 +187,7 @@ namespace ChatExcel
                         MessageBox.Show($"运行宏时出错: {runEx.Message}\n\n请检查Excel的宏设置是否已启用。");
                         return;
                     }
-                    
+
                     // 清理：删除临时模块
                     wb.VBProject.VBComponents.Remove(vbaModule);
                     wb.Save();
@@ -199,13 +203,13 @@ namespace ChatExcel
             }
         }
 
-        public static void EnableVBAAccess()
+        public void EnableVBAAccess()
         {
             try
             {
                 // 获取 Excel 版本号
                 Excel.Application excelApp = new Excel.Application();
-                string version = excelApp.Version;  // 获取 Excel 版本号，例如 "16.0"
+                string version = excelApp.Version;
                 excelApp.Quit();
 
                 string regPath = $@"Software\Microsoft\Office\{version}\Excel\Security";
@@ -229,6 +233,8 @@ namespace ChatExcel
             }
         }
 
+        #endregion
+
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
         }
@@ -244,7 +250,7 @@ namespace ChatExcel
             this.Startup += new System.EventHandler(ThisAddIn_Startup);
             this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
         }
-        
+
         #endregion
     }
 }

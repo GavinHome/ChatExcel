@@ -31,7 +31,7 @@ namespace ChatExcel
             debugPanel = new Panel
             {
                 Dock = DockStyle.Bottom,
-                Height = 170  // 调试区域总高度
+                Height = 200  // 调试区域总高度
             };
             Controls.Add(debugPanel);
 
@@ -68,11 +68,10 @@ namespace ChatExcel
                 TextAlign = ContentAlignment.MiddleLeft,
                 Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold),
                 BackColor = System.Drawing.Color.FromArgb(245, 245, 245),
-                Padding = new Padding(10, 0, 0, 0),
-                Margin = new Padding(10, 15, 10, 10)
+                //Padding = new Padding(10, 10, 10, 10),
+                Margin = new Padding(10, 10, 10, 10)
             };
-            debugPanel.Controls.Add(lblDebugArea);
-
+            
             // 执行按钮
             btnExecute = new Button
             {
@@ -81,15 +80,18 @@ namespace ChatExcel
                 Height = 40
             };
             btnExecute.Click += BtnExecute_Click;
-            debugPanel.Controls.Add(btnExecute);
-
+            
             // 输入框 (VBA 代码)
             txtVbaCode = new TextBox
             {
                 Dock = DockStyle.Fill,
                 Multiline = true,
             };
-            debugPanel.Controls.Add(txtVbaCode);
+            
+            // 按照正确的顺序添加控件，确保布局正确
+            debugPanel.Controls.Add(txtVbaCode);  // 先添加输入框
+            debugPanel.Controls.Add(btnExecute);  // 再添加按钮
+            debugPanel.Controls.Add(lblDebugArea); // 最后添加标题
         }
 
         private void BtnExecute_Click(object sender, EventArgs e)
