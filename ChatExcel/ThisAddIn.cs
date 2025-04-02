@@ -95,6 +95,9 @@ namespace ChatExcel
         /// <returns>格式化后的VBA代码</returns>
         private string FormatVbaCode(string vbaCode)
         {
+            // 移除代码块标记
+            vbaCode = vbaCode.Replace("```vba", "").Replace("```", "").Trim();
+
             // 检查代码是否已经包含了Public Sub GeneratedMacro()和End Sub
             if (vbaCode.Contains("Public Sub GeneratedMacro()") && vbaCode.Contains("End Sub"))
             {
