@@ -9,20 +9,25 @@ using Microsoft.Office.Tools.Excel;
 using Microsoft.Vbe.Interop;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using Serilog;
 
 namespace ChatExcel
 {
     public partial class ThisAddIn
     {
+        private static WebSocketClient _webSocketClient = new WebSocketClient("wss://ws-server.gavinhome.partykit.dev/party/chat-excel");
+
         private Microsoft.Office.Tools.CustomTaskPane customTaskPane;
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             // 自动打开工作簿
             CreateAndOpenFile();
-            
+
             // 加载面板
             CreateCustomTaskPane();
+
+            WebSocketInit();
         }
 
         private void CreateAndOpenFile()
@@ -257,6 +262,116 @@ namespace ChatExcel
         }
 
         #endregion
+
+        private void WebSocketInit()
+        {
+            Log.Information("开始初始化WebSocket");
+            try
+            {
+                // 注册消息处理程序
+                _webSocketClient.OnCommandRequestReceived += HandleCommandRequest;
+                _webSocketClient.OnMessageReceived += HandleMessageReceived;
+                _webSocketClient.OnConnectionStateChanged += HandleConnectionStateChanged;
+                _webSocketClient.OnReconnectAttempt += HandleReconnectAttempt;
+                _webSocketClient.OnReconnectFailed += HandleReconnectFailed;
+                Log.Information("WebSocket事件处理程序注册完成");
+
+                // 连接
+                _webSocketClient.Connect();
+                Log.Debug("WebSocket连接请求已发送");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "WebSocket客户端初始化失败: {ErrorMessage}, 请检查网络连接或服务器状态", ex.Message);
+            }
+
+            Log.Information("WebSocket初始化完成");
+        }
+
+        #region WebSocket
+
+        private void HandleMessageReceived(string obj)
+        {
+            string vbaCode = obj;
+
+            if (string.IsNullOrWhiteSpace(vbaCode))
+            {
+                MessageBox.Show("请输入 VBA 代码！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            else if (vbaCode.Contains("hello"))
+            {
+                MessageBox.Show($"{vbaCode}", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            RunVba(vbaCode); // 执行 VBA 代码
+        }
+
+        // 处理从WebSocket接收到的命令请求
+        private void HandleCommandRequest(CommandRequest request)
+        {
+            Log.Information("HandleCommandRequest");
+        }
+
+        // 处理WebSocket连接状态变化
+        private void HandleConnectionStateChanged(bool isConnected)
+        {
+            if (isConnected)
+            {
+                Log.Information("WebSocket连接成功");
+            }
+            else
+            {
+                Log.Warning("WebSocket连接断开，请检查网络连接或服务器状态");
+            }
+        }
+
+        // 处理WebSocket重连尝试
+        private void HandleReconnectAttempt(int attempt)
+        {
+            Log.Information("WebSocket正在进行第{Attempt}次重连尝试", attempt);
+        }
+
+        // 处理WebSocket重连失败
+        private void HandleReconnectFailed()
+        {
+            Log.Warning("WebSocket自动重连失败，等待用户手动重连");
+            try
+            {
+                MessageBox.Show(
+                    "WebSocket连接已断开，自动重连失败。\n" +
+                    "请检查网络连接和服务器状态，\n" +
+                    "如果服务器已恢复正常，可以点击确定进行手动重连。",
+                    "连接断开",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                Log.Debug("已显示WebSocket重连失败对话框");
+
+                try
+                {
+                    Log.Information("尝试手动重连WebSocket");
+                    _webSocketClient.ManualReconnect();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "手动重连失败: {ErrorMessage}", ex.Message);
+                    MessageBox.Show(
+                        "手动重连失败，请检查网络连接和服务器状态。",
+                        "重连失败",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                    Log.Debug("已显示手动重连失败对话框");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "显示重连对话框或执行手动重连过程中发生错误: {ErrorMessage}", ex.Message);
+            }
+        }
+
+        #endregion
+
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
