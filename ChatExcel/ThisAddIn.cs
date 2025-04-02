@@ -10,6 +10,7 @@ using Microsoft.Vbe.Interop;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using Serilog;
+using System.IO;
 
 namespace ChatExcel
 {
@@ -21,6 +22,8 @@ namespace ChatExcel
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
+            LoadConfig();
+
             // 自动打开工作簿
             CreateAndOpenFile();
 
@@ -28,6 +31,35 @@ namespace ChatExcel
             CreateCustomTaskPane();
 
             WebSocketInit();
+        }
+
+        private void LoadConfig()
+        {
+            Log.Information("开始加载配置");
+            try
+            {
+                // 配置 Serilog
+                var logFilePath = Path.Combine(SystemConfig.LogDirectory, "Serilog.log");
+                Log.Information("日志文件路径: {LogFilePath}", logFilePath);
+
+                Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Debug()           // 设置最低日志级别
+                    .Enrich.FromLogContext()     // 启用日志上下文
+                    .WriteTo.File(logFilePath,
+                        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] [{EventId}]  {Message:lj}{NewLine}{Exception}",
+                        rollingInterval: RollingInterval.Day,
+                        rollOnFileSizeLimit: true,
+                        fileSizeLimitBytes: 10000000)
+                    .CreateLogger();
+
+                // 记录程序启动日志
+                Log.Information("CADAgent应用程序启动，ID: {CADAgentID}", SystemConfig.AppID);
+                Log.Information("配置初始化完成");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"加载配置时发生异常: {ex.Message}");
+            }
         }
 
         private void CreateAndOpenFile()
@@ -50,6 +82,31 @@ namespace ChatExcel
             {
                 MessageBox.Show("打开工作簿时出错: " + ex.Message);
             }
+        }
+
+        private void WebSocketInit()
+        {
+            Log.Information("开始初始化WebSocket");
+            try
+            {
+                // 注册消息处理程序
+                _webSocketClient.OnCommandRequestReceived += HandleCommandRequest;
+                _webSocketClient.OnMessageReceived += HandleMessageReceived;
+                _webSocketClient.OnConnectionStateChanged += HandleConnectionStateChanged;
+                _webSocketClient.OnReconnectAttempt += HandleReconnectAttempt;
+                _webSocketClient.OnReconnectFailed += HandleReconnectFailed;
+                Log.Information("WebSocket事件处理程序注册完成");
+
+                // 连接
+                _webSocketClient.Connect();
+                Log.Debug("WebSocket连接请求已发送");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "WebSocket客户端初始化失败: {ErrorMessage}, 请检查网络连接或服务器状态", ex.Message);
+            }
+
+            Log.Information("WebSocket初始化完成");
         }
 
         #region CustomTaskPane 
@@ -263,31 +320,6 @@ namespace ChatExcel
 
         #endregion
 
-        private void WebSocketInit()
-        {
-            Log.Information("开始初始化WebSocket");
-            try
-            {
-                // 注册消息处理程序
-                _webSocketClient.OnCommandRequestReceived += HandleCommandRequest;
-                _webSocketClient.OnMessageReceived += HandleMessageReceived;
-                _webSocketClient.OnConnectionStateChanged += HandleConnectionStateChanged;
-                _webSocketClient.OnReconnectAttempt += HandleReconnectAttempt;
-                _webSocketClient.OnReconnectFailed += HandleReconnectFailed;
-                Log.Information("WebSocket事件处理程序注册完成");
-
-                // 连接
-                _webSocketClient.Connect();
-                Log.Debug("WebSocket连接请求已发送");
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "WebSocket客户端初始化失败: {ErrorMessage}, 请检查网络连接或服务器状态", ex.Message);
-            }
-
-            Log.Information("WebSocket初始化完成");
-        }
-
         #region WebSocket
 
         private void HandleMessageReceived(string obj)
@@ -375,6 +407,22 @@ namespace ChatExcel
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
+            try
+            {
+                Log.Information("开始执行CADCommand.Terminate");
+                _webSocketClient.Disconnect();
+                _webSocketClient = null;
+
+                Log.Information("CADAgent应用程序终止");
+                Log.CloseAndFlush();
+            }
+            catch (Exception ex)
+            {
+                // 在终止方法中异常可能无法正常记录
+                System.Diagnostics.Debug.WriteLine($"终止程序时发生异常: {ex.Message}");
+                Log.Error(ex, "CADCommand.Terminate执行失败: {ErrorMessage}", ex.Message);
+                Log.CloseAndFlush();
+            }
         }
 
         #region VSTO 生成的代码
