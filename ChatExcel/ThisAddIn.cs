@@ -30,6 +30,7 @@ namespace ChatExcel
             // 加载面板
             CreateCustomTaskPane();
 
+            // WebSocket
             WebSocketInit();
         }
 
@@ -336,14 +337,28 @@ namespace ChatExcel
                 MessageBox.Show($"{vbaCode}", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-
-            RunVba(vbaCode); // 执行 VBA 代码
+            else if (vbaCode.Contains("vba"))
+            {
+                RunVba(vbaCode); // 执行 VBA 代码
+            }
         }
 
         // 处理从WebSocket接收到的命令请求
         private void HandleCommandRequest(CommandRequest request)
         {
             Log.Information("HandleCommandRequest");
+
+            string vbaCode = request.Message;
+
+            if (string.IsNullOrWhiteSpace(vbaCode))
+            {
+                MessageBox.Show("请输入 VBA 代码！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            else if (vbaCode.Contains("vba"))
+            {
+                RunVba(vbaCode); // 执行 VBA 代码
+            }
         }
 
         // 处理WebSocket连接状态变化
