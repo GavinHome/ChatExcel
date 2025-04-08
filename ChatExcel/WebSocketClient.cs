@@ -32,32 +32,32 @@ namespace ChatExcel
         public WebSocketClient(string serverUrl)
         {
             Log.Information("开始创建WebSocket客户端");
-            
+
             _serverUrl = serverUrl;
             _isConnected = false;
             _reconnectAttempts = 0;
-            
+
             // 初始化重连定时器
-            Log.Debug("初始化WebSocket重连定时器，间隔: {ReconnectInterval}毫秒，最大尝试次数: {MaxAttempts}", 
+            Log.Debug("初始化WebSocket重连定时器，间隔: {ReconnectInterval}毫秒，最大尝试次数: {MaxAttempts}",
                 ReconnectInterval, MaxReconnectAttempts);
-                
+
             _reconnectTimer = new Timer(ReconnectInterval);
             _reconnectTimer.Elapsed += OnReconnectTimerElapsed;
             _reconnectTimer.AutoReset = false;
             _reconnectTimer.Enabled = false;
-            
+
             Log.Information("WebSocket客户端已创建，服务器地址: {ServerUrl}", serverUrl);
         }
 
         private void OnReconnectTimerElapsed(object sender, ElapsedEventArgs e)
         {
-            Log.Debug("重连定时器触发，当前尝试次数: {CurrentAttempt}/{MaxAttempts}", 
+            Log.Debug("重连定时器触发，当前尝试次数: {CurrentAttempt}/{MaxAttempts}",
                 _reconnectAttempts, MaxReconnectAttempts);
-                
+
             if (_reconnectAttempts < MaxReconnectAttempts)
             {
                 _reconnectAttempts++;
-                Log.Information("尝试重新连接WebSocket服务器 (第{Attempt}/{MaxAttempts}次)", 
+                Log.Information("尝试重新连接WebSocket服务器 (第{Attempt}/{MaxAttempts}次)",
                     _reconnectAttempts, MaxReconnectAttempts);
                 OnReconnectAttempt?.Invoke(_reconnectAttempts);
                 Connect();
@@ -97,7 +97,7 @@ namespace ChatExcel
 
                 // 注册WebSocket事件处理程序
                 Log.Debug("注册WebSocket事件处理程序");
-                
+
                 _webSocket.OnOpen += (sender, e) =>
                 {
                     _isConnected = true;
@@ -116,7 +116,7 @@ namespace ChatExcel
                     // 启动重连定时器
                     if (_reconnectAttempts < MaxReconnectAttempts)
                     {
-                        Log.Debug("开始自动重连，当前尝试次数: {CurrentAttempt}/{MaxAttempts}", 
+                        Log.Debug("开始自动重连，当前尝试次数: {CurrentAttempt}/{MaxAttempts}",
                             _reconnectAttempts, MaxReconnectAttempts);
                         _reconnectTimer.Enabled = true;
                     }
@@ -140,12 +140,11 @@ namespace ChatExcel
                         // 处理接收到的消息
                         string message = e.Data;
                         // 如果消息过长，只记录前100个字符
-                        string truncatedMessage = message.Length > 100 
-                            ? message.Substring(0, 100) + "..." 
+                        string truncatedMessage = message.Length > 100
+                            ? message.Substring(0, 100) + "..."
                             : message;
-                        Log.Information("收到WebSocket消息: {TruncatedMessage}, 长度: {Length}字符", 
-                            truncatedMessage, message.Length);
-                        
+                        Log.Information("收到WebSocket消息: {TruncatedMessage}, 长度: {Length}字符", truncatedMessage, message.Length);
+
                         try
                         {
                             // 尝试将消息解析为 CommandRequest 对象
@@ -153,14 +152,11 @@ namespace ChatExcel
                             if (commandRequest != null)
                             {
                                 // 触发对象消息接收事件
-                                //Log.Information("解析为CommandRequest: EventName={EventName}, 参数长度={ParamLength}字符", 
-                                //    commandRequest.EventName, commandRequest.EventParams?.Length ?? 0);
                                 OnCommandRequestReceived?.Invoke(commandRequest);
                             }
                             else
                             {
                                 // 如果不是 CommandRequest 对象，则触发普通消息事件
-                                Log.Information("解析为空CommandRequest，触发普通消息事件");
                                 OnMessageReceived?.Invoke(message);
                             }
                         }
@@ -186,7 +182,7 @@ namespace ChatExcel
             {
                 Log.Error(ex, "连接到WebSocket服务器时发生错误: {ErrorMessage}", ex.Message);
                 _isConnected = false;
-                
+
                 // 启动重连定时器
                 if (_reconnectAttempts < MaxReconnectAttempts)
                 {
@@ -210,7 +206,7 @@ namespace ChatExcel
                 Log.Information("开始断开WebSocket连接");
                 _reconnectTimer.Enabled = false;
                 _reconnectAttempts = 0;
-                
+
                 // 正常关闭WebSocket连接
                 Log.Debug("发送WebSocket关闭请求，代码: 1000 (正常关闭)");
                 _webSocket.Close(1000, "客户端主动断开连接");
@@ -237,18 +233,18 @@ namespace ChatExcel
             try
             {
                 // 如果消息过长，只记录前100个字符
-                string truncatedMessage = message.Length > 100 
-                    ? message.Substring(0, 100) + "..." 
+                string truncatedMessage = message.Length > 100
+                    ? message.Substring(0, 100) + "..."
                     : message;
-                Log.Information("准备发送消息: {TruncatedMessage}, 长度: {Length}字符", 
+                Log.Information("准备发送消息: {TruncatedMessage}, 长度: {Length}字符",
                     truncatedMessage, message.Length);
-                    
+
                 _webSocket.Send(message);
                 Log.Debug("消息发送成功，长度: {Length}字符", message.Length);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "发送消息时发生错误: {ErrorMessage}, 消息长度: {Length}字符", 
+                Log.Error(ex, "发送消息时发生错误: {ErrorMessage}, 消息长度: {Length}字符",
                     ex.Message, message?.Length ?? 0);
             }
         }
@@ -276,7 +272,7 @@ namespace ChatExcel
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "发送对象时发生错误: {ErrorMessage}, 对象类型: {ObjectType}", 
+                Log.Error(ex, "发送对象时发生错误: {ErrorMessage}, 对象类型: {ObjectType}",
                     ex.Message, typeof(T).Name);
             }
         }
@@ -284,11 +280,11 @@ namespace ChatExcel
         // 检查是否已连接到WebSocket服务器
         public bool IsConnected
         {
-            get 
-            { 
+            get
+            {
                 bool connected = _isConnected && _webSocket != null;
                 Log.Debug("检查WebSocket连接状态: {IsConnected}", connected);
-                return connected; 
+                return connected;
             }
         }
     }
