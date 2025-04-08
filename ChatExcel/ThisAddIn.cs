@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 using Serilog;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace ChatExcel
 {
@@ -339,6 +340,7 @@ namespace ChatExcel
             }
             else if (vbaCode.Contains("vba"))
             {
+                vbaCode = vbaCode.Replace("\\n", "\n").Replace("\\\"", "\"");
                 RunVba(vbaCode); // 执行 VBA 代码
             }
         }
@@ -346,7 +348,7 @@ namespace ChatExcel
         // 处理从WebSocket接收到的命令请求
         private void HandleCommandRequest(CommandRequest request)
         {
-            Log.Information("HandleCommandRequest");
+            Log.Information("HandleCommandRequest： {@CommandRequest}", request);
 
             string vbaCode = request.Message;
 
@@ -357,6 +359,7 @@ namespace ChatExcel
             }
             else if (vbaCode.Contains("vba"))
             {
+                vbaCode = vbaCode.Replace("\\n", "\n").Replace("\\\"", "\"");
                 RunVba(vbaCode); // 执行 VBA 代码
             }
         }
