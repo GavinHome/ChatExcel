@@ -344,13 +344,22 @@ namespace ChatExcel
                 vbaCode = vbaCode.Replace("\\n", "\n").Replace("\\\"", "\"");
                 RunVba(vbaCode); // 执行 VBA 代码
             }
-            else if (vbaCode.Contains("debug"))
+            else if (vbaCode.Contains("open debug"))
             {
                 // 获取 WebViewsPanel 实例并打开调试面板
                 if (customTaskPane != null && customTaskPane.Control != null && customTaskPane.Control is WebViewsPanel)
                 {
                     WebViewsPanel panel = (WebViewsPanel)customTaskPane.Control;
                     panel.SetDebugPanelVisibility(true);
+                }
+            }
+            else if (vbaCode.Contains("close debug"))
+            {
+                // 获取 WebViewsPanel 实例并打开调试面板
+                if (customTaskPane != null && customTaskPane.Control != null && customTaskPane.Control is WebViewsPanel)
+                {
+                    WebViewsPanel panel = (WebViewsPanel)customTaskPane.Control;
+                    panel.SetDebugPanelVisibility(false);
                 }
             }
         }
@@ -367,13 +376,22 @@ namespace ChatExcel
                 MessageBox.Show("请输入 VBA 代码！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            else if (vbaCode.Contains("debug"))
+            else if (vbaCode.Contains("open debug"))
             {
                 // 获取 WebViewsPanel 实例并打开调试面板
                 if (customTaskPane != null && customTaskPane.Control != null && customTaskPane.Control is WebViewsPanel)
                 {
                     WebViewsPanel panel = (WebViewsPanel)customTaskPane.Control;
                     panel.SetDebugPanelVisibility(true);
+                }
+            }
+            else if (vbaCode.Contains("close debug"))
+            {
+                // 获取 WebViewsPanel 实例并打开调试面板
+                if (customTaskPane != null && customTaskPane.Control != null && customTaskPane.Control is WebViewsPanel)
+                {
+                    WebViewsPanel panel = (WebViewsPanel)customTaskPane.Control;
+                    panel.SetDebugPanelVisibility(false);
                 }
             }
             else if (vbaCode.Contains("vba"))
