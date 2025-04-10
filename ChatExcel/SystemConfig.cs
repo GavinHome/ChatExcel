@@ -9,12 +9,12 @@ namespace ChatExcel
         /// <summary>
         /// WebSocketUrl
         /// </summary>
-        public static string WebSocketUrl { get; set; } = "wss://ws-server.gavinhome.partykit.dev/party/chat-excel";
+        public static string WebSocketUrl { get; set; } = "wss://ws-server.gavinhome.partykit.dev/party/94296d83-43b8-4c7a-8b91-ee714492f193";
 
         /// <summary>
         /// WebSiteUrl
         /// </summary>
-        public static string WebSiteUrl { get; set; } = "https://udify.app/chatbot/AVX31tbxs79E7br4";
+        public static string WebSiteUrl { get; set; } = "https://udify.app/chatbot/sw92ceraq0rPLe9w";
        
         /// <summary>
         /// 标识
