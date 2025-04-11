@@ -63,6 +63,16 @@ namespace ChatExcel
             {
                 System.Diagnostics.Debug.WriteLine($"加载配置时发生异常: {ex.Message}");
             }
+
+            if (string.IsNullOrEmpty(SystemConfig.WebSiteUrl))
+            {
+                SystemConfig.WebSiteUrl = SystemConfig.GetConfigValue("WebSiteUrl", "");
+            }
+
+            if (string.IsNullOrEmpty(SystemConfig.WebSocketUrl))
+            {
+                SystemConfig.WebSocketUrl = SystemConfig.GetConfigValue("WebSocketUrl", "");
+            }
         }
 
         private void CreateAndOpenFile()

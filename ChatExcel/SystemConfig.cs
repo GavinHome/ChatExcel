@@ -75,10 +75,12 @@ namespace ChatExcel
         /// 获取系统字体
         /// </summary>
         public static Font SystemFont { get; private set; } = new Font("宋体", 9F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
+
         /// <summary>
         /// 获取系统前景色
         /// </summary>
         public static Color SystemColor { get; private set; } = SystemColors.ControlText;
+
         /// <summary>
         /// 获取系统背景色
         /// </summary>
@@ -90,7 +92,7 @@ namespace ChatExcel
         /// <param name="key">配置键名</param>
         /// <param name="defaultValue">默认值</param>
         /// <returns>配置值或默认值</returns>
-        private static string GetConfigValue(string key, string defaultValue)
+        public static string GetConfigValue(string key, string defaultValue)
         {
             try
             {
